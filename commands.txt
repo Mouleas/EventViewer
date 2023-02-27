@@ -1,0 +1,28 @@
+
+g++ -I"%JAVA_HOME%\include" -I"%JAVA_HOME%\include\win32" -o eventsecurity eventsecurity.cpp&eventsecurity.exe
+g++ -I"%JAVA_HOME%\include" -I"%JAVA_HOME%\include\win32" eventsecurity.cpp -lwevtapi
+
+g++ -c -I"%JAVA_HOME%/include" -I"%JAVA_HOME%/include/win32" EventCpp.cpp -o EventCpp.o
+g++ -shared -o event.dll EventCpp.o -Wl,--add-stdcall-alias -lwevtapi
+SET CLASSPATH=C:\Users\mouleas-pt6548\Desktop\mysql-connector-j-8.0.31.jar;.
+
+g++ -c -I"%JAVA_HOME%/include" -I"%JAVA_HOME%/include/win32" SecurityEvents.cpp -o SecurityEvents.o
+g++ -shared -o connector2.dll SecurityEvents.o -Wl,--add-stdcall-alias -lwevtapi
+
+<QueryList>
+  <Query Id="0" Path="System">
+    <Select Path="System">*[System[EventRecordID&gt;=168490]]</Select>
+  </Query>
+</QueryList>
+
+<QueryList>
+  <Query Id="0" Path="System">
+    <Select Path="System">*[System[TimeCreated[@SystemTime&gt;='2023-02-17T00:00:01.000Z' and @SystemTime&lt;='2023-02-17T04:42:48.999Z'] and EventRecordID&gt;=168490]]</Select>
+  </Query>
+</QueryList>
+
+chrome.exe --disable-web-security --disable-gpu --user-data-dir=C:\ChromeTemp
+
+
+
+
