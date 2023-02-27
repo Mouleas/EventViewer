@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:web="http://xmlns.jcp.org/xml/ns/javaee" xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd http://xmlns.jcp.org/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="5.0">
+
+	
+<servlet>
+	<servlet-name>getCount</servlet-name>
+	<servlet-class>Main</servlet-class>
+</servlet>
+<servlet-mapping>
+	<servlet-name>getCount</servlet-name>
+	<url-pattern>/event/getCount</url-pattern>
+</servlet-mapping>
+
+
+<servlet>
+	<servlet-name>printData</servlet-name>
+	<servlet-class>Main</servlet-class>
+</servlet>
+<servlet-mapping>
+	<servlet-name>printData</servlet-name>
+	<url-pattern>/event/printData</url-pattern>
+</servlet-mapping>
+	
+<servlet>
+	<servlet-name>loadNewData</servlet-name>
+	<servlet-class>Main</servlet-class>
+</servlet>
+<servlet-mapping>
+	<servlet-name>loadNewData</servlet-name>
+	<url-pattern>/event/getDataBetweenDate</url-pattern>
+</servlet-mapping>
+
+	
+</web-app>
