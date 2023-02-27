@@ -1,0 +1,46 @@
+<html>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<body>
+
+    <div id="eventSelector" {{action 'eventselector' on="change"}}>
+        <h2>Event Viewer</h2>
+        <label><input type="radio" name="event" id="eventSystem">System</label>&ensp;&ensp;
+        <label><input type="radio" name="event" id="eventApplication" >Application</label>
+    <br><br>
+    </div>
+    
+
+    <div id="SystemContainer">
+
+        <Form 
+            @formType="System"
+            @nextPage={{this.nextPage}}
+            @previousPage={{this.previousPage}}
+            @SystemDateChange={{this.SystemDateChange}}
+            @System={{this.System}}
+            @pageNumber={{this.systemPageNumber}}
+            @modelName={{this.systemModel}}>
+
+        </Form>
+
+    </div>
+
+    <div id="ApplicationContainer">
+
+        <Form 
+            @formType="Application"
+            @nextPage={{this.nextPage}}
+            @previousPage={{this.previousPage}}
+            @ApplicationDateChange={{this.ApplicationDateChange}}
+            @Application={{this.Application}}
+            @pageNumber={{this.applicationPageNumber}}
+            @modelName={{this.applicationModel}}>
+
+        </Form>
+
+    </div>
+
+    
+
+</body>
+</html>

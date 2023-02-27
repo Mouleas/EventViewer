@@ -1,0 +1,46 @@
+<h2>{{@formType}} Events</h2>
+<form method="POST">
+
+		From: <input type="date" id={{concat @formType "Arg1"}} {{action (concat @formType "DateChange") on="change"}}>&ensp;
+		To: <input type="date" id={{concat @formType "Arg2"}} {{action (concat @formType "DateChange") on="change"}}>&ensp;
+		
+		<button type="submit" {{action @formType on="click"}} id={{concat @formType "FetchButton"}}>Fetch data</button>&ensp;&ensp;
+		
+		<br><br><label>Count: <i id={{concat @formType "Count"}}>0</i></label><br>
+		
+		<br><label align='center'>PageNumber: {{@pageNumber}}</label><br><br>
+
+		<div id={{concat @formType "Table"}}>
+            <table id={{concat @formType "Table"}} align="center" cellpadding="5" cellspacing="5" border="1">
+                <tr>
+					<td><b>RecordNumber</b></td>
+					<td><b>EventId</b></td>
+					<td><b>Keyword</b></td>
+					<td><b>Source</b></td>
+					<td><b>ComputerName</b></td>
+					<td><b>Date</b></td>
+					<td><b>Level</b></td>
+					<td><b>Task</b></td>
+				</tr>
+					{{#each-in @modelName as |key item|}}
+						<tr>
+							<td>{{get item "0"}}</td>
+							<td>{{get item "1"}}</td>
+							<td>{{get item "2"}}</td>
+							<td>{{get item "3"}}</td>
+							<td>{{get item "4"}}</td>
+							<td>{{get item "5"}}</td>
+							<td>{{get item "6"}}</td>
+							<td>{{get item "7"}}</td>
+						</tr>
+           	 		{{/each-in}}
+			</table>
+		</div><br>
+
+	<button  id="nextButton" type="submit" {{action 'nextPage' on="click"}}>Next</button>
+	<button  id="backButton" type="submit" {{action 'previousPage' on="click"}}>Back</button>
+
+	<br><br> 	
+	
+</form>
+
