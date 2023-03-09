@@ -51,40 +51,48 @@ public class Main extends HttpServlet {
 
 //  Methods to call native
     static {
+        System.out.println("in dll");
         System.loadLibrary("event");
     }
 
     public static synchronized void callback(Properties events, String type){
 //        System.out.println("events = "+events);
         try {
-                String RecordNumber = events.getProperty("RecordNumber");
-                String EventId = events.getProperty("EventId");
-                String ResKeyword = events.getProperty("ResKeyword");
-                String Source = events.getProperty("Source");
-                String ComputerName = events.getProperty("ComputerName");
-                String DateTime = events.getProperty("Date");
-                String Level = events.getProperty("Level");
-                String Task = events.getProperty("Task");
+            String RecordNumber = events.getProperty("RecordNumber");
+            String EventId = events.getProperty("EventId");
+            String ResKeyword = events.getProperty("ResKeyword");
+            String Source = events.getProperty("Source");
+            String ComputerName = events.getProperty("ComputerName");
+            String DateTime = events.getProperty("Date");
+            String Level = events.getProperty("Level");
+            String Task = events.getProperty("Task");
 
-                if (type.equals("System"))
-                    insertSqlStatement = "INSERT INTO systemevents (RecordNumber, EventId, ResKeyword, Source, ComputerName, DateTime, Level, Task) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                else if (type.equals("Application"))
-                    insertSqlStatement = "INSERT INTO applicationevents (RecordNumber, EventId, ResKeyword, Source, ComputerName, DateTime, Level, Task) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            if (type.equals("System"))
+                insertSqlStatement = "INSERT INTO systemevents (RecordNumber, EventId, ResKeyword, Source, ComputerName, DateTime, Level, Task) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            else if (type.equals("Application"))
+                insertSqlStatement = "INSERT INTO applicationevents (RecordNumber, EventId, ResKeyword, Source, ComputerName, DateTime, Level, Task) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-                Class.forName("com.mysql.jdbc.Driver");
-                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/events", "root", "root");
-                PreparedStatement preparedStatement = connection.prepareStatement(insertSqlStatement);
-                preparedStatement.setInt(1, Integer.parseInt(RecordNumber));
-                preparedStatement.setString(2, EventId);
-                preparedStatement.setString(3, ResKeyword);
-                preparedStatement.setString(4, Source);
-                preparedStatement.setString(5, ComputerName);
-                preparedStatement.setDate(6, java.sql.Date.valueOf(DateTime));
-                preparedStatement.setString(7, Level);
-                preparedStatement.setString(8, Task);
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/events", "root", "root");
+            PreparedStatement preparedStatement = connection.prepareStatement(insertSqlStatement);
+            preparedStatement.setInt(1, Integer.parseInt(RecordNumber));
+            preparedStatement.setString(2, EventId);
+            preparedStatement.setString(3, ResKeyword);
+            preparedStatement.setString(4, Source);
+            preparedStatement.setString(5, ComputerName);
+            preparedStatement.setDate(6, java.sql.Date.valueOf(DateTime));
+            preparedStatement.setString(7, Level);
+            preparedStatement.setString(8, Task);
+            preparedStatement.executeUpdate();
+
+            String updateStatement = "UPDATE dates2 SET recno = ? WHERE date = ? AND query = ?;";
+            preparedStatement = connection.prepareStatement(updateStatement);
+            preparedStatement.setInt(1,Integer.parseInt(RecordNumber));
+            preparedStatement.setDate(2, java.sql.Date.valueOf(DateTime));
+            preparedStatement.setString(3, type);
 
             preparedStatement.executeUpdate();
-                connection.close();
+            connection.close();
         }
         catch (Exception e){
             System.out.println("In callback exception...");
@@ -211,7 +219,7 @@ public class Main extends HttpServlet {
                         String type = Thread.currentThread().getName();
                         for (LocalDate currDate = start; (currDate.isBefore(end) || currDate.isEqual(end)); currDate = currDate.plusDays(1)) {
                             System.out.println(currDate + " => "+ type);
-                            String dateQuery = "SELECT COUNT(date) FROM dates WHERE date='" + currDate + "' AND query='" + type + "'";
+                            String dateQuery = "SELECT COUNT(date) FROM dates2 WHERE date='" + currDate + "' AND query='" + type + "'";
                             ResultSet rs = statement.executeQuery(dateQuery);
 
                             int validDate = 1;
@@ -219,14 +227,31 @@ public class Main extends HttpServlet {
                                 validDate = rs.getInt(1);
                             }
 
+                            int recNo = -1;
+                            if (validDate == 1){
+                                String query = "SELECT recno FROM dates2 WHERE date='"+ currDate +"' AND query='"+ type + "'";
+                                rs = statement.executeQuery(query);
+                                while (rs.next()){
+                                    recNo = rs.getInt(1);
+                                }
+                                if (recNo == -1){
+                                    validDate = 0;
+                                }
+                            }
+
                             if (validDate == 0) {
                                 String query = "<QueryList><Query Id='0' Path='" + type + "'><Select Path='" + type + "'>*[System[TimeCreated[@SystemTime&gt;='";
                                 query += currDate + "T00:00:01.000Z' and @SystemTime&lt;='" + currDate + "T23:59:59.999Z']]]</Select></Query></QueryList>";
-                                String newDateQuery = "INSERT INTO dates(date, query) VALUES (?,?)";
+                                String newDateQuery = "INSERT INTO dates2(date, query) VALUES (?,?)";
                                 PreparedStatement preparedStatement = con.prepareStatement(newDateQuery);
                                 preparedStatement.setDate(1, java.sql.Date.valueOf(currDate));
                                 preparedStatement.setString(2, type);
                                 preparedStatement.executeUpdate();
+                                new Main().getEventInfo(type, query);
+                            }
+                            else {
+                                String query = "<QueryList><Query Id='0' Path='" + type + "'><Select Path='" + type + "'>*[System[TimeCreated[@SystemTime&gt;='";
+                                query += currDate + "T00:00:01.000Z' and @SystemTime&lt;='" + currDate + "T23:59:59.999Z'] and EventRecordID&gt;="+(recNo+1)+"]]</Select></Query></QueryList>";
                                 new Main().getEventInfo(type, query);
                             }
                         }
